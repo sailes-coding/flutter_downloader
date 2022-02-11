@@ -176,6 +176,8 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
         boolean openFileFromNotification = call.argument("open_file_from_notification");
         String notificationTitle = call.argument("notification_title");
         boolean requiresStorageNotLow = call.argument("requires_storage_not_low");
+
+        android.util.Log.d(TAG, "enqueue: --------------------"+savedDir);
         WorkRequest request = buildRequest(url, savedDir, filename, headers, showNotification, openFileFromNotification, notificationTitle, false, requiresStorageNotLow);
         WorkManager.getInstance(context).enqueue(request);
         String taskId = request.getId().toString();
@@ -295,11 +297,13 @@ public class FlutterDownloaderPlugin implements MethodCallHandler, FlutterPlugin
             if (task.status == DownloadStatus.COMPLETE) {
                 String fileURL = task.url;
                 String savedDir = task.savedDir;
+                android.util.Log.d(TAG, "open: "+savedDir);
                 String filename = task.filename;
                 if (filename == null) {
                     filename = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
                 }
                 String saveFilePath = savedDir + File.separator + filename;
+                android.util.Log.d(TAG, "open: saveflepath"+saveFilePath);
                 Intent intent = IntentUtils.validatedFileIntent(context, saveFilePath, task.mimeType);
                 if (intent != null) {
                     context.startActivity(intent);

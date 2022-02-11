@@ -282,6 +282,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _requestDownload(_TaskInfo task) async {
+    print("--------------------");
+    print(_localPath);
     task.taskId = await FlutterDownloader.enqueue(
         url: task.link!,
         headers: {"auth": "test_for_sql_encoding"},
@@ -324,23 +326,23 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<bool> _checkPermission() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    if (widget.platform == TargetPlatform.android &&
-        androidInfo.version.sdkInt <= 28) {
-      final status = await Permission.storage.status;
-      if (status != PermissionStatus.granted) {
-        final result = await Permission.storage.request();
-        if (result == PermissionStatus.granted) {
-          return true;
-        }
-      } else {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    return false;
+    // DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    // AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+    // if (widget.platform == TargetPlatform.android &&
+    //     androidInfo.version.sdkInt <= 28) {
+    //   final status = await Permission.storage.status;
+    //   if (status != PermissionStatus.granted) {
+    //     final result = await Permission.storage.request();
+    //     if (result == PermissionStatus.granted) {
+    //       return true;
+    //     }
+    //   } else {
+    //     return true;
+    //   }
+    // } else {
+    //   return true;
+    // }
+    return true;
   }
 
   Future<Null> _prepare() async {
@@ -418,8 +420,10 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     } else if (Platform.isIOS) {
       externalStorageDirPath =
-          (await getApplicationDocumentsDirectory()).absolute.path;
+          (await getApplicationSupportDirectory()).absolute.path;
     }
+    externalStorageDirPath =
+        (await getApplicationSupportDirectory()).absolute.path;
     return externalStorageDirPath;
   }
 }

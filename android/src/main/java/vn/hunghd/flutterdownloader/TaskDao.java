@@ -35,7 +35,7 @@ public class TaskDao {
     public void insertOrUpdateNewTask(String taskId, String url, int status, int progress, String fileName,
                                        String savedDir, String headers, boolean showNotification, boolean openFileFromNotification, String notificationTitle) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-
+        android.util.Log.d("TAG", "insertOrUpdateNewTask: "+savedDir);
         ContentValues values = new ContentValues();
         values.put(TaskContract.TaskEntry.COLUMN_NAME_TASK_ID, taskId);
         values.put(TaskContract.TaskEntry.COLUMN_NAME_URL, url);

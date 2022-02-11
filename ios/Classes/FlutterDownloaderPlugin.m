@@ -338,7 +338,7 @@ static BOOL debug = YES;
 }
 
 - (NSString*)absoluteSavedDirPath:(NSString*)savedDir {
-    return [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:savedDir];
+    return [[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:savedDir];
 }
 
 - (NSString*)shortenSavedDirPath:(NSString*)absolutePath {
@@ -346,11 +346,16 @@ static BOOL debug = YES;
         NSLog(@"Absolute savedDir path: %@", absolutePath);
     }
     if (absolutePath) {
-        NSString* documentDirPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        NSString* documentDirPath = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) firstObject];
+        NSLog(@"Absolute  path: %@", absolutePath);
+        NSLog(@"Absolute  path document: %@", documentDirPath);
         NSRange foundRank = [absolutePath rangeOfString:documentDirPath];
+        NSLog(@"Absolute  path: %lu", (unsigned long)foundRank.length);
         if (foundRank.length > 0) {
+        
             // we increase the location of range by one because we want to remove the file separator as well.
-            return [absolutePath substringWithRange:NSMakeRange(foundRank.length + 1, absolutePath.length - documentDirPath.length - 1)];
+            NSString *shortenSavedDirPath = [absolutePath substringWithRange:NSMakeRange(foundRank.length + 1, absolutePath.length - documentDirPath.length - 1)];
+                      return shortenSavedDirPath != nil ? shortenSavedDirPath : @"";
         }
     }
     return absolutePath;
@@ -376,6 +381,7 @@ static BOOL debug = YES;
 
 - (void) addNewTask: (NSString*) taskId url: (NSString*) url status: (int) status progress: (int) progress filename: (NSString*) filename savedDir: (NSString*) savedDir headers: (NSString*) headers resumable: (BOOL) resumable showNotification: (BOOL) showNotification openFileFromNotification: (BOOL) openFileFromNotification
 {
+    NSLog(@"saiudalsikdjasld.  = %@", savedDir);
     headers = [self escape:headers revert:false];
     NSString *query = [NSString stringWithFormat:@"INSERT INTO task (task_id,url,status,progress,file_name,saved_dir,headers,resumable,show_notification,open_file_from_notification,time_created) VALUES (\"%@\",\"%@\",%d,%d,\"%@\",\"%@\",\"%@\",%d,%d,%d,%lld)", taskId, url, status, progress, filename, savedDir, headers, resumable ? 1 : 0, showNotification ? 1 : 0, openFileFromNotification ? 1 : 0, [self currentTimeInMilliseconds]];
     [_dbManager executeQuery:query];
@@ -565,16 +571,18 @@ static BOOL debug = YES;
 - (void)enqueueMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     NSString *urlString = call.arguments[KEY_URL];
     NSString *savedDir = call.arguments[KEY_SAVED_DIR];
+    NSLog(@"sss %@", savedDir);
     NSString *shortSavedDir = [self shortenSavedDirPath:savedDir];
     NSString *fileName = call.arguments[KEY_FILE_NAME];
     NSString *headers = call.arguments[KEY_HEADERS];
     NSNumber *showNotification = call.arguments[KEY_SHOW_NOTIFICATION];
     NSNumber *openFileFromNotification = call.arguments[KEY_OPEN_FILE_FROM_NOTIFICATION];
 
-    NSURLSessionDownloadTask *task = [self downloadTaskWithURL:[NSURL URLWithString:urlString] fileName:fileName andSavedDir:savedDir andHeaders:headers];
+    NSURLSessionDownloadTask *task = [self downloadTaskWithURL:[NSURL URLWithString:urlString] fileName:fileName andSavedDir:shortSavedDir andHeaders:headers];
 
     NSString *taskId = [self identifierForTask:task];
 
+    NSLog(@"%@", savedDir);
     [_runningTaskById setObject: [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                   urlString, KEY_URL,
                                   fileName, KEY_FILE_NAME,
