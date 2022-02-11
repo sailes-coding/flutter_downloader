@@ -32,6 +32,8 @@ public class IntentUtils {
 
     public static synchronized Intent validatedFileIntent(Context context, String path, String contentType) {
         File file = new File(path);
+        android.util.Log.d("TAG", "validatedFileIntent: "+path);
+        android.util.Log.d("TAG", "validatedFileIntent: "+file.exists());
         Intent intent = buildIntent(context, file, contentType);
         if (validateIntent(context, intent)) {
             return intent;
