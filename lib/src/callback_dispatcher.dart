@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'models.dart';
-
+@pragma('vm:entry-point')
 void callbackDispatcher() {
   const MethodChannel backgroundChannel =
       MethodChannel('vn.hunghd/downloader_background');
